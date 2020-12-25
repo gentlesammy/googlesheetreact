@@ -18,6 +18,7 @@ import CookieConsent, { Cookies } from "react-cookie-consent";
 import ErrorAlert from "./ErrorAlert";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import SpamCheck from "./SpamCheck";
+import { setCookie } from "./Cookies";
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -58,6 +59,7 @@ export default function Form() {
   const classes = useStyles();
   const [eligible, setEligible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [final, setFinal] = useState(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -68,7 +70,6 @@ export default function Form() {
     duration: 1,
   });
   useEffect(() => {
-    console.log(process.env.REACT_APP_GOOGLE_SHEET_LINK);
     if (SpamChecker) {
       setEligible(true);
     } else {
@@ -88,7 +89,7 @@ export default function Form() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     //validate and sanitise input
     if (
@@ -116,7 +117,49 @@ export default function Form() {
     } else if (duration > 20) {
       return errorNoti("maximum payback time is 20 months");
     } else {
-      console.log(formData);
+      //form is correct, submit to api and set
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `${process.env.REACT_APP_GOOGLE_SHEET_LINK}?tabId=sheet1`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify([
+              [
+                firstName,
+                lastName,
+                email,
+                phone,
+                amount,
+                duration,
+                new Date().toLocaleDateString(),
+              ],
+            ]),
+          }
+        );
+        const json = await response.json();
+        setLoading(false);
+        successNoti(`${json.message}, data id is ${json.row_id}`);
+        setCookie("eligibilityCode", "xgduue37838ueierioi984yhhfduf8");
+        setEligible(false);
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          confirmPhone: "",
+          amount: 0,
+          duration: 1,
+        });
+      } catch (error) {
+        console.log(error);
+        setLoading(false);
+        setFinal(null);
+        return errorNoti("An error occured, please try again later");
+      }
     }
   };
 
@@ -131,125 +174,130 @@ export default function Form() {
           LOAN REQUEST FORM
         </Typography>
         <ToastContainer />
-        <form className={classes.form} noValidate onSubmit={handleFormSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                autoComplete="fname"
-                name="firstName"
-                variant="outlined"
-                required
-                fullWidth
-                id="firstName"
-                label="First Name"
-                value={firstName}
-                onChange={onChangeHandler}
-                autoFocus
-                onChange={onChangeHandler}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                variant="outlined"
-                required
-                fullWidth
-                id="lastName"
-                label="Last Name"
-                name="lastName"
-                value={lastName}
-                onChange={onChangeHandler}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant="outlined"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                value={email}
-                onChange={onChangeHandler}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="phone"
-                variant="outlined"
-                required
-                fullWidth
-                id="phone"
-                label=" Phone Number"
-                value={phone}
-                onChange={onChangeHandler}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="confirmPhone"
-                variant="outlined"
-                required
-                fullWidth
-                id="comfirmphone"
-                label=" Phone Number"
-                value={confirmPhone}
-                onChange={onChangeHandler}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="amount"
-                variant="outlined"
-                required
-                fullWidth
-                id="amount"
-                label="Amount Needed"
-                value={amount}
-                onChange={onChangeHandler}
-                type="number"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                name="duration"
-                variant="outlined"
-                required
-                fullWidth
-                id="duration"
-                type="number"
-                label="Payment Duration (months)"
-                value={duration}
-                onChange={onChangeHandler}
-              />
-            </Grid>
+        {!loading && (
+          <form className={classes.form} noValidate onSubmit={handleFormSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  autoComplete="fname"
+                  name="firstName"
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="firstName"
+                  label="First Name"
+                  value={firstName}
+                  onChange={onChangeHandler}
+                  autoFocus
+                  onChange={onChangeHandler}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="lastName"
+                  label="Last Name"
+                  name="lastName"
+                  value={lastName}
+                  onChange={onChangeHandler}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  value={email}
+                  onChange={onChangeHandler}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="phone"
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="phone"
+                  label=" Phone Number"
+                  value={phone}
+                  onChange={onChangeHandler}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="confirmPhone"
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="comfirmphone"
+                  label=" Phone Number"
+                  value={confirmPhone}
+                  onChange={onChangeHandler}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="amount"
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="amount"
+                  label="Amount Needed"
+                  value={amount}
+                  onChange={onChangeHandler}
+                  type="number"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  name="duration"
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="duration"
+                  type="number"
+                  label="Payment Duration (months)"
+                  value={duration}
+                  onChange={onChangeHandler}
+                />
+              </Grid>
 
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={<Checkbox value="iagree" color="primary" />}
-                label="I Agree to all terms and condition"
-              />
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={<Checkbox value="iagree" color="primary" />}
+                  label="I Agree to all terms and condition"
+                />
+              </Grid>
             </Grid>
-          </Grid>
-          {eligible && (
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="secondary"
-              className={classes.submit}
-              // disabled={eligible ? true : false}
-            >
-              Send Request Now
-            </Button>
-          )}
+            {eligible && (
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="secondary"
+                className={classes.submit}
+                // disabled={eligible ? true : false}
+              >
+                Send Request Now
+              </Button>
+            )}
 
-          {!eligible && (
-            <Grid item xs={12}>
-              <ErrorAlert />
-            </Grid>
-          )}
-          {/* <CircularProgress color="inherit" /> */}
-        </form>
+            {!eligible && (
+              <Grid item xs={12}>
+                <ErrorAlert />
+              </Grid>
+            )}
+            {/* <CircularProgress color="inherit" /> */}
+          </form>
+        )}
+
+        {loading && <CircularProgress />}
+
         <CookieConsent>
           This website uses cookies to enhance the user experience.
         </CookieConsent>
