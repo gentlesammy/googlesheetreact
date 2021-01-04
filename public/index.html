@@ -7,18 +7,29 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Sample App to connect Your google sheet with a physical React form app."
+      content="Sample PWA  connected to Your google sheet with a physical React form app."
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
 
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
-    <title>Loan Request: Google Sheet Connector</title>
+    <title>PWA: Loan Request: Google Sheet Connector</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+<script>
+if ("serviceWorker" in navigator) {
+   window.addEventListener("load", ()=>{
+     navigator.serviceWorker.register("./serviceworker.js")
+     .then((reg) => {console.log("success", reg.scope)})
+     .catch((err) => console.log("error is seen here", err.message))
+   })
+
+  
+}
+</script>
 
   </body>
 </html>

@@ -36,3 +36,84 @@
     transform: rotate(360deg);
   }
 }
+
+
+.info-bar{
+  padding: 30px 0px;
+  background:black;
+  display:flex;
+  justify-content:center;
+  align-items: center;
+}
+
+
+/* info button styling */
+.info-btn {
+      display: inline-block;
+    font-weight: 400;
+    color: #212529;
+    text-align: center;
+    vertical-align: middle;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: .375rem .75rem;
+    margin: 20px;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: .25rem;
+    color: #fff;
+    background-color: #f50057;
+    cursor: pointer;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.info-btn:hover{
+  background-color: transparent;
+}
+
+
+
+/* modal container styling */
+.modal-container{
+  background: black;
+  padding:20px;
+  margin:auto;
+  position: relative;
+}
+
+
+.modal-close{
+  position: absolute;
+  border-radius: 50%;
+  top:10px;
+  right: 50%;
+  color:red;
+  padding:10px;
+  cursor:pointer;
+  font-weight:900;
+  font-size: 24px;
+ width: 48px;
+ height:48px;
+background:white;
+text-align:center;
+}
+
+
+.modal-container iframe{
+  min-width: 100%;
+}
+
+.modal-container .modal-text-box{
+  color:white;
+  margin-top: 100px;
+  padding-left:20px;
+
+}
+
+.text-justify{
+  text-align:justify;
+  line-height: 23px;
+}

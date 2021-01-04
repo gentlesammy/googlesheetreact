@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import Form from "./components/Form";
+import InfoModal from "./components/InfoModal";
+import About from "./components/About"
 import "./App.css";
 
 function App() {
@@ -16,6 +18,12 @@ function App() {
   }, []);
   return (
     <div className="App">
+      <div className="info-bar">
+        <InfoModal />
+        <About/>
+      </div>
+      
+
       <Form />
     </div>
   );
